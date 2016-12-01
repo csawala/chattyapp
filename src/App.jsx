@@ -7,34 +7,43 @@ class App extends Component {
   constructor (props){
     super(props)
     this.state = {
+      prevUser: { name: 'Anonymous' },
       currentUser: { name: '' },
       messages: []
     }
   }
 
 
-  handleUsername = (ev) => {
+  handleUsername = (ev) => {    // MANAGE USERNAME BASED ON ChatBar INPUT
     this.setState({ currentUser: {name: ev.target.value}})
   }
 
-  handleMessage = (ev) => {
+  handleMessage = (ev) => {     // MANAGE NEW MESSAGE SUBMISSION BASED ON ChatBar INPUT
     this.setState({ message: ev.target.value })
+    let currName = this.state.currentUser.name
+    let prevName = this.state.prevUser.name
     let newMessage = {}
 
-    if (ev.key === 'Enter') {
-      if (this.state.currentUser.name.length > 0) {
-        newMessage = {
-          username: this.state.currentUser.name,
-          content: this.state.message
-        }
+    if (ev.key === 'Enter') {     // 'SUBMIT'
+      // SET USERNAME DEPENDING ON WHETHER NAME ENTERED (username || Anonymous)
+      newMessage.username = (currName.length > 0)
+        ? currName : 'Anonymous'
+      newMessage.content = this.state.message
+
+      // CHECK TO SEE IF USERNAME HAS CHANGED FROM LAST POST
+      if (newMessage.username != prevName) {
+        newMessage.type = 'postNotification'
+        newMessage.typeContent =
+          `${prevName} has changed their name to ${newMessage.username}`
+        this.setState({ prevUser: { name: currName }})
       } else {
-        newMessage = {
-          username: 'Anonymous',
-          content: this.state.message
-        }
+        newMessage.type = 'postMessage'
       }
 
       this.ws.send(JSON.stringify(newMessage))
+
+      // RESET MESSAGE FIELD UPON SUCCESSFUL SUBMISSION
+      this.setState({ message: '' })
       document.getElementById('new-message').value = ''
     }
   }
@@ -49,7 +58,7 @@ class App extends Component {
 
     this.ws.onmessage = (fromWS) => {
       const messages = this.state.messages.concat(JSON.parse(fromWS.data))
-      console.log(messages)
+      console.log("Messages from WS: ", messages)
 
       this.setState({ messages: messages })
     }

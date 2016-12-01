@@ -32,6 +32,7 @@ wss.on('connection', (ws) => {
     const received = JSON.parse(message)
     received['id'] = uuid.v1()          // time based random UUID
 
+
     wss.broadcast(JSON.stringify(received))
   });
 

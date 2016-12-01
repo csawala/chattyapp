@@ -2,11 +2,24 @@ import React, {Component} from 'react';
 
 
 class Message extends Component {
-  render () {
+  render() {
+    let notificationCheck = null
+
+    if (this.props.msg.type = 'postNotification') {
+      notificationCheck = (
+        <div className="message system">
+            <span>{this.props.msg.typeContent}</span>
+        </div>
+      )
+    }
+
     return (
-      <div className="message">
+      <div>
+        {notificationCheck}
+        <div className="message">
           <span className="username">{this.props.msg.username}:</span>
           <span className="content">{this.props.msg.content}</span>
+        </div>
       </div>
     )
   }
@@ -15,7 +28,3 @@ class Message extends Component {
 export default Message
 
 
-
-// <div className="message system">
-//     Anonymous1 changed their name to nomnom.
-// </div>
