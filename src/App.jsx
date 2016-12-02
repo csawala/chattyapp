@@ -9,7 +9,8 @@ class App extends Component {
     this.state = {
       prevUser: { name: 'Anonymous' },
       currentUser: { name: '' },
-      messages: []
+      messages: [],
+      loggedUsers: 0
     }
   }
 
@@ -57,10 +58,21 @@ class App extends Component {
     }
 
     this.ws.onmessage = (fromWS) => {
-      const messages = this.state.messages.concat(JSON.parse(fromWS.data))
-      console.log("Messages from WS: ", messages)
+      let receiveParsed = JSON.parse(fromWS.data)
+      let messages = this.state.messages.concat(receiveParsed)
+      // console.log("Messages from WS: ", receiveParsed)
 
-      this.setState({ messages: messages })
+      switch (receiveParsed.type) {
+        case 'loggedUsers':
+          this.setState({ loggedUsers: receiveParsed.quantity })
+          break;
+        case 'postNotification':
+        case 'postMessage':
+          this.setState({ messages: messages })
+          break;
+        default:
+          console.log('Something fell through the cracks')
+      }
     }
   }
 
@@ -69,9 +81,8 @@ class App extends Component {
     return (
       <div className="wrapper">
         <nav>
-          <h1>
-            Chatty
-          </h1>
+          <h1 className="title">Chatty</h1>
+          <div className="loggedUsers">{this.state.loggedUsers} users online</div>
         </nav>
 
         <MessageList messages={this.state.messages}/>

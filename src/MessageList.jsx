@@ -7,7 +7,6 @@ class MessageList extends Component {
       <div id="message-list">
         {
           this.props.messages.map(function(values) {
-            console.log(values)
             return <Message key={values.id} msg={values} />
           })
         }
